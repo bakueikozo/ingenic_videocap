@@ -343,11 +343,11 @@ int setup_encoding_engine(FrameSource* frame_source, EncoderSetting *encoder_set
   IMPEncoderAttr *enc_attr;
   IMPEncoderRcAttr *rc_attr;
   IMPFSChnAttr *imp_chn_attr_tmp;
-  IMPEncoderCHNAttr channel_attr;
+  IMPEncoderChnAttr channel_attr;
 
   // imp_chn_attr_tmp = &chn[i].fs_chn_attr;
 
-  memset(&channel_attr, 0, sizeof(IMPEncoderCHNAttr));
+  memset(&channel_attr, 0, sizeof(IMPEncoderChnAttr));
   enc_attr = &channel_attr.encAttr;
 
   if (strcmp(encoder_setting->payload_type, "PT_H264") == 0) {

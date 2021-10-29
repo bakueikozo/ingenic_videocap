@@ -29,7 +29,7 @@ typedef struct frame_source {
 	int pic_width;
 	int pic_height;
 
-	IMPFSCHNAttr imp_fs_attrs;
+	IMPFSChnAttr imp_fs_attrs;
 
 } FrameSource;
 
@@ -51,7 +51,7 @@ typedef struct encoder_setting {
 	int pic_width;
 	int pic_height;
 	
-	IMPEncoderCHNAttr chn_attr;
+	IMPEncoderChnAttr chn_attr;
 
 } EncoderSetting;
 
