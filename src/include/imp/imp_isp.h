@@ -6,6 +6,7 @@
 
 #ifndef __IMP_ISP_H__
 #define __IMP_ISP_H__
+#include <stdbool.h>
 
 #include "imp_common.h"
 
@@ -274,12 +275,18 @@ int IMP_ISP_SetSensorRegister(uint32_t reg, uint32_t value);
  */
 int IMP_ISP_GetSensorRegister(uint32_t reg, uint32_t *value);
 
+/**
+ * ISP功能开关
+ */
 typedef enum {
 	IMPISP_TUNING_OPS_MODE_DISABLE,			/**< 不使能该模块功能 */
 	IMPISP_TUNING_OPS_MODE_ENABLE,			/**< 使能该模块功能 */
 	IMPISP_TUNING_OPS_MODE_BUTT,			/**< 用于判断参数的有效性，参数大小必须小于这个值 */
 } IMPISPTuningOpsMode;
 
+/**
+ * ISP功能选用开关
+ */
 typedef enum {
 	IMPISP_TUNING_OPS_TYPE_AUTO,			/**< 该模块的操作为自动模式 */
 	IMPISP_TUNING_OPS_TYPE_MANUAL,			/**< 该模块的操作为手动模式 */
@@ -382,287 +389,6 @@ int IMP_ISP_Tuning_SetAntiFlickerAttr(IMPISPAntiflickerAttr attr);
  * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
  */
 int IMP_ISP_Tuning_GetAntiFlickerAttr(IMPISPAntiflickerAttr *pattr);
-
-/**
- * ISP 动态范围压缩模块操作模式。
- */
-typedef enum {
-	IMPISP_DRC_MANUAL,				/**< ISP 动态范围压缩模块手动模式 */
-	IMPISP_DRC_UNLIMIT,				/**< ISP 动态范围压缩模块最高压缩模式 */
-	IMPISP_DRC_HIGH,				/**< ISP 动态范围压缩模块高压缩模式 */
-	IMPISP_DRC_MEDIUM,				/**< ISP 动态范围压缩模块中压缩模式 */
-	IMPISP_DRC_LOW,					/**< ISP 动态范围压缩模块低压缩模式 */
-	IMPISP_DRC_DISABLE,				/**< ISP 动态范围压缩模块不使能 */
-} IMPISPDrcMode;
-
-/**
- * ISP 动态范围压缩模块属性参数。
- */
-typedef struct {
-	IMPISPDrcMode mode;				/**< ISP 动态范围压缩模块操作模式选择 */
-	unsigned char drc_strength;			/**< 手动模式下设置的目标值，取值范围为[0, 0xff] */
-	unsigned char slop_max;				/**< 强度控制参数，取值范围为[0, oxff] */
-	unsigned char slop_min;				/**< 强度控制参数，取值范围为[0, oxff] */
-	unsigned short black_level;			/**< DRC增强的最小像素值，取值范围为[0, oxfff] */
-	unsigned short white_level;			/**< DRC增强的最大像素值，取值范围为[0, oxfff] */
-} IMPISPDrcAttr;
-
-/**
- * @fn int IMP_ISP_Tuning_SetRawDRC(IMPISPDrcAttr *pinfo)
- *
- * 设置ISP RAW图动态范围压缩模块参数
- *
- * @param[in] pinfo 动态范围参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 设置RGB RAW图动态范围压缩的操作类型，强度，需要增强的最大最小像素值。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetRawDRC(IMPISPDrcAttr *pinfo);
-
-/**
- * @fn int IMP_ISP_Tuning_GetRawDRC(IMPISPDrcAttr *pinfo)
- *
- * 获取ISP RAW图动态范围压缩模块参数
- *
- * @param[in] pinfo 动态范围参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 设置RGB RAW图动态范围压缩的操作类型，强度，需要增强的最大最小像素值。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_GetRawDRC(IMPISPDrcAttr *pinfo);
-
-/**
- * ISP 空间降噪模块属性参数。
- */
-typedef struct {
-	IMPISPTuningOpsMode enable;			/**< 使能空间降噪功能 */
-	IMPISPTuningOpsType type;				/**< 空间降噪功能操作类型，自动或手动 */
-	unsigned char sinter_strength;				/**< 空间降噪强度，手动模式有效，取值范围为[0, 0xff] */
-} IMPISPSinterDenoiseAttr;
-
-/**
- * ISP 时域降噪模块操作模式。
- */
-typedef enum {
-	IMPISP_TEMPER_DISABLE,				/**< ISP 时域降噪模块不使能 */
-	IMPISP_TEMPER_AUTO,					/**< ISP 时域降噪模块自动模式 */
-	IMPISP_TEMPER_MANUAL,				/**< ISP 时域降噪模块手动模式 */
-} IMPISPTemperMode;
-
-/**
- * ISP 时域降噪模块属性参数。
- */
-typedef struct imp_isp_temper_denoise_attr {
-	IMPISPTemperMode type;					/**< 时域降噪功能操作类型，不使能，自动或手动 */
-	unsigned char temper_strength;				/**< 时域降噪强度，手动模式有效，取值范围为[0, 0xff] */
-} IMPISPTemperDenoiseAttr;
-
-
-/**
- * @fn int IMP_ISP_Tuning_SetSinterDnsAttr(IMPISPSinterDenoiseAttr *pinfo)
- *
- * 设置ISP 空间降噪模块参数
- *
- * @param[in] pinfo 时域降噪参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 设置空间降噪模块校正参数。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetSinterDnsAttr(IMPISPSinterDenoiseAttr *pinfo);
-
-/**
- * @fn int IMP_ISP_Tuning_GetSinterDnsAttr(IMPISPSinterDenoiseAttr *pinfo)
- *
- * 获取ISP 空间降噪模块参数
- *
- * @param[in] pinfo 空间降噪参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 获取空间降噪模块校正参数。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_GetSinterDnsAttr(IMPISPSinterDenoiseAttr *pinfo);
-#if 0
-/**
-* @fn int IMP_ISP_Tuning_SetTemperDnsCtl(IMPISPTemperDenoiseAttr *pinfo);
-*
-* 设置ISP 时域降噪模块模式
-*
-* @param[in] pinfo 时域降噪参数指针
-*
-* @retval 0 成功
-* @retval 非0 失败，返回错误码
-*
-* @remark 设置时域降噪模块模式参数，默认自动模式。
-*
-* @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
-*/
-int IMP_ISP_Tuning_SetTemperDnsCtl(IMPISPTemperDenoiseAttr *pinfo);
-#endif
-/**
- * @fn int IMP_ISP_Tuning_SetTemperDnsAttr(IMPISPTemperDenoiseAttr *pinfo)
- *
- * 设置ISP 时域降噪模块参数
- *
- * @param[in] pinfo 时域降噪参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 设置时域降噪模块校正参数，默认开启该模块；由于该模块需要额外内存，如果不需要请关闭该模块，一旦关闭内存就被释放，不能再被开启。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetTemperDnsAttr(IMPISPTemperDenoiseAttr *pinfo);
-
-/**
- * @fn int IMP_ISP_Tuning_GetTemperDnsAttr(IMPISPTemperDenoiseAttr *pinfo)
- *
- * 获取ISP 时域降噪模块参数
- *
- * @param[in] pinfo 时域降噪模块参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 获取时域降噪模块校正参数。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_GetTemperDnsAttr(IMPISPTemperDenoiseAttr *pinfo);
-
-/**
- * @fn int IMP_ISP_Tuning_SetWDRAttr(IMPISPTuningOpsMode mode)
- *
- * 设置ISP 宽动态模块是否使能
- *
- * @param[in] mode 宽动态模块参数
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 设置宽动态模块校正参数，默认开启该模块；由于该模块需要额外内存，如果不需要请关闭该模块，一旦关闭内存就被释放，不能再被开启。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetWDRAttr(IMPISPTuningOpsMode mode);
-
-/**
- * @fn int IMP_ISP_Tuning_GetWDRAttr(IMPISPTuningOpsMode *pmode)
- *
- * 获取ISP 宽动态模块当前状态
- *
- * @param[in] pmode 宽动态模块参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 获取宽动态模块校正参数。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_GetWDRAttr(IMPISPTuningOpsMode *pmode);
-
-/**
- * ISP 综合扩展功能，场景模式选择。
- */
-typedef enum {
-	IMPISP_SCENE_MODE_AUTO = 0,					/**< 自动模式 */
-	IMPISP_SCENE_MODE_BEACH_SNOW = 2,				/**< 海滩雪景模式 */
-	IMPISP_SCENE_MODE_CANDLE_LIGHT = 3,				/**< 蜡烛灯光模式 */
-	IMPISP_SCENE_MODE_DAWN_DUSK = 4,				/**< 傍晚模式 */
-	IMPISP_SCENE_MODE_FALL_COLORS = 5,				/**< 秋天场景模式 */
-	IMPISP_SCENE_MODE_FIREWORKS = 6,				/**< 焰火场景模式 */
-	IMPISP_SCENE_MODE_LANDSCAPE = 7,				/**< 风景模式 */
-	IMPISP_SCENE_MODE_NIGHT = 8,					/**< 夜晚模式 */
-	IMPISP_SCENE_MODE_PARTY_INDOOR = 9,				/**< 室内晚会模式 */
-	IMPISP_SCENE_MODE_SPORTS = 11,					/**< 运动模式 */
-	IMPISP_SCENE_MODE_SUNSET = 12,					/**< 日落模式 */
-	IMPISP_SCENE_MODE_TEXT = 13,					/**< 文本模式 */
-	IMPISP_SCENE_MODE_NIGHT_PORTRAIT = 14,				/**< 夜间肖像模式 */
-} IMPISPSceneMode;
-
-/**
- * @fn int IMP_ISP_Tuning_SetSceneMode(IMPISPSceneMode mode)
- *
- * 设置ISP 综合效果场景模式
- *
- * @param[in] mode 效果场景模式参数
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetSceneMode(IMPISPSceneMode mode);
-
-/**
- * @fn int IMP_ISP_Tuning_GetSceneMode(IMPISPSceneMode *pmode)
- *
- * 获取ISP 综合效果场景模式
- *
- * @param[in] pmode 效果场景模式参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_GetSceneMode(IMPISPSceneMode *pmode);
-
-/**
- * ISP 综合扩展功能，色彩模式选择。
- */
-typedef enum {
-	IMPISP_COLORFX_MODE_AUTO = 0,				/**< 自动模式 */
-	IMPISP_COLORFX_MODE_BW = 1,				/**< 黑白模式 */
-	IMPISP_COLORFX_MODE_SEPIA = 2,				/**< 棕褐色模式 */
-	IMPISP_COLORFX_MODE_NEGATIVE = 3,			/**< 反向色模式 */
-	IMPISP_COLORFX_MODE_VIVID = 9,				/**< 鲜艳模式 */
-} IMPISPColorfxMode;
-
-/**
- * @fn int IMP_ISP_Tuning_SetColorfxMode(IMPISPColorfxMode mode)
- *
- * 设置ISP 综合效果色彩模式
- *
- * @param[in] mode 色彩模式参数
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetColorfxMode(IMPISPColorfxMode mode);
-
-/**
- * @fn int IMP_ISP_Tuning_GetColorfxMode(IMPISPColorfxMode *pmode)
- *
- * 获取ISP 综合效果色彩模式
- *
- * @param[in] pmode 色彩模式参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_GetColorfxMode(IMPISPColorfxMode *pmode);
 
 /**
  * @fn int IMP_ISP_Tuning_SetBrightness(unsigned char bright)
@@ -791,53 +517,6 @@ int IMP_ISP_Tuning_SetSaturation(unsigned char sat);
  * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
  */
 int IMP_ISP_Tuning_GetSaturation(unsigned char *psat);
-#if 0
-/**
- * @fn int IMP_ISP_Tuning_SetISPProcess(IMPISPTuningOpsMode mode)
- *
- * 旁路ISP模块处理，直接输出sensor图像
- *
- * @param[in] mode 是否旁路ISP模块处理参数
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 如果使能该功能，sensor输出的图像将不经过ISP模块的任何处理，直接输出。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetISPProcess(IMPISPTuningOpsMode mode);
-#endif
-/**
- * @fn int IMP_ISP_Tuning_SetFWFreeze(IMPISPTuningOpsMode mode)
- *
- * 冻结ISP固件操作，使能表示冻结ISP固件，这是ISP的自动算法将停止；不使能表示ISP固件能正常工作。
- *
- * @param[in] mode 是否冻结ISP固件参数
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SetFWFreeze(IMPISPTuningOpsMode mode);
-
-
-/**
- * @fn int IMP_ISP_Tuning_SaveAllParam(char *path)
- *
- * 保存ISP模块所有调试参数
- *
- * @param[in] path 路径参数指针
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @remark 保存调试的所有ISP参数。
- *
- * @attention 在使用这个函数之前，必须保证ISP效果调试功能已使能.
- */
-int IMP_ISP_Tuning_SaveAllParam(char *path);
 
 /**
  * @fn int IMP_ISP_Tuning_SetISPBypass(IMPISPTuningOpsMode enable)
@@ -980,58 +659,6 @@ int IMP_ISP_Tuning_SetISPRunningMode(IMPISPRunningMode mode);
 int IMP_ISP_Tuning_GetISPRunningMode(IMPISPRunningMode *pmode);
 
 /**
- * ISP 自动曝光策略配置，正常模式或曝光优先模式。
- **/
-typedef enum {
-	IMPISP_AE_STRATEGY_SPLIT_BALANCED = 0,              /**< 正常模式 */
-	IMPISP_AE_STRATEGY_SPLIT_INTEGRATION_PRIORITY = 1,      /**< 曝光优先模式 */
-	IMPISP_AE_STRATEGY_BUTT,                    /**< 最大值 */
-} IMPISPAeStrategy;
-
-/**
- * @fn int IMP_ISP_Tuning_SetAeStrategy(IMPISPAeStrategy strategy)
- *
- * 设置ISP工作模式，自动曝光策略配置，正常模式或曝光优先模式；默认为正常模式。
- *
- * @param[in] strategy 自动曝光策略参数
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- * 示例：
- * @code
- * IMPISPAeStrategy strategy;
- *
- *  if( it is a normal scence){
-		mode = IMPISP_AE_STRATEGY_SPLIT_BALANCED
-	 }else{
-		mode = IMPISP_AE_STRATEGY_SPLIT_INTEGRATION_PRIORITY;
-     }
-	 ret = IMP_ISP_Tuning_SetAeStrategy(strategy);
-	if(ret){
-	IMP_LOG_ERR(TAG, "IMP_ISP_Tuning_SetAeStrategy error !\n");
-	return -1;
-	}
-*
-* @endcode
-*
-* @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
-*/
-int IMP_ISP_Tuning_SetAeStrategy(IMPISPAeStrategy strategy);
-
-/**
-* @fn int IMP_ISP_Tuning_GetAeStrategy(IMPISPAeStrategy *pstrategy)
-*
-* 获取ISP自动曝光策略配置，正常模式或曝光优先模式。
-* @param[in] pstrategy 自动曝光策略参数指针
-*
-* @retval 0 成功
-* @retval 非0 失败，返回错误码
-*
-* @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
-*/
-int IMP_ISP_Tuning_GetAeStrategy(IMPISPAeStrategy *pstrategy);
-
-/**
  * gamma
  */
 typedef struct {
@@ -1067,7 +694,7 @@ int IMP_ISP_Tuning_GetGamma(IMPISPGamma *gamma);
 /**
 * @fn int IMP_ISP_Tuning_SetAeComp(int comp)
 *
-* 设置AE补偿。AE补偿参数可以调整图像AE target，建议设置范围为[90-150].
+* 设置AE补偿。AE补偿参数可以调整图像AE target，范围为[0-255].
 * @param[in] comp AE补偿参数
 *
 * @retval 0 成功
@@ -1089,6 +716,20 @@ int IMP_ISP_Tuning_SetAeComp(int comp);
 * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
 */
 int IMP_ISP_Tuning_GetAeComp(int *comp);
+
+/**
+* @fn int IMP_ISP_Tuning_GetAeLuma(int *luma)
+*
+* 获取画面平均亮度。
+*
+* @param[out] luma AE亮度参数
+*
+* @retval 0 成功
+* @retval 非0 失败，返回错误码
+*
+* @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+*/
+int IMP_ISP_Tuning_GetAeLuma(int *luma);
 
 /**
  * 曝光模式
@@ -1167,34 +808,6 @@ typedef union isp_core_ae_roi_select{
 } IMPISPAERoi;
 
 /**
- * @fn int IMP_ISP_Tuning_AE_GetROI(IMPISPAERoi *isp_ae_roi)
- *
- * 获取AE统计区域。
- *
- * @param[out] isp_ae_roi AE矩形统计区域参数。
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
- */
-int IMP_ISP_Tuning_AE_GetROI(IMPISPAERoi *isp_ae_roi);
-
-/**
- * @fn int IMP_ISP_Tuning_AE_SetROI(IMPISPAERoi *isp_ae_roi)
- *
- * 设置AE统计区域。
- *
- * @param[in] isp_ae_roi AE矩形统计区域参数。
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
- */
-int IMP_ISP_Tuning_AE_SetROI(IMPISPAERoi *isp_ae_roi);
-
-/**
  * 白平衡模式
  */
 enum isp_core_wb_mode {
@@ -1207,6 +820,7 @@ enum isp_core_wb_mode {
 	ISP_CORE_WB_MODE_TWILIGHT,			/**< 黄昏 */
 	ISP_CORE_WB_MODE_SHADE,				/**< 阴影 */
 	ISP_CORE_WB_MODE_WARM_FLOURESCENT,	/**< 暖色荧光灯 */
+	ISP_CORE_WB_MODE_CUSTOM,	/**< 自定义模式 */
 };
 
 /**
@@ -1261,45 +875,18 @@ int IMP_ISP_Tuning_GetWB(IMPISPWB *wb);
 int IMP_ISP_Tuning_GetWB_Statis(IMPISPWB *wb);
 
 /**
- * @fn int IMP_ISP_Tuning_Awb_GetCwfShift(IMPISPWB* isp_wb_attr)
+ * @fn IMP_ISP_Tuning_GetWB_GOL_Statis(IMPISPWB *wb)
  *
- * 获取ISP中AWB的CWF光源的位置
+ * 获取白平衡全局统计值。
  *
- * @param[out] isp_wb_attr CWF光源位置坐标
+ * @param[out] wb 获取的白平衡全局统计值。
  *
  * @retval 0 成功
  * @retval 非0 失败，返回错误码
  *
  * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
  */
-int IMP_ISP_Tuning_Awb_GetCwfShift(IMPISPWB *isp_wb_attr);
-
-/**
- * @fn int IMP_ISP_Tuning_Awb_SetCwfShift(IMPISPWB *isp_wb_attr)
- *
- * 设置ISP中AWB的CWF光源的位置
- *
- * @param[in] isp_wb_attr CWF光源位置坐标
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- * 示例：
- * @code
- * IMPISPWB isp_wb_attr;
- *
- *isp_wb_attr.rgain = x;
- *isp_wb_attr.bgain = y;
- *IMP_ISP_Tuning_Awb_SetCwfShift(isp_wb_attr);
- if(ret){
- IMP_LOG_ERR(TAG, "IMP_ISP_Tuning_Awb_SetCwfShift error !\n");
- return -1;
- }
- *
- * @endcode
- *
- * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
- */
-int IMP_ISP_Tuning_Awb_SetCwfShift(IMPISPWB *isp_wb_attr);
+int IMP_ISP_Tuning_GetWB_GOL_Statis(IMPISPWB *wb);
 
 /**
  * @fn int IMP_ISP_Tuning_SetMaxAgain(uint32_t gain)
@@ -1313,6 +900,49 @@ int IMP_ISP_Tuning_Awb_SetCwfShift(IMPISPWB *isp_wb_attr);
  *
  * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
  */
+
+typedef struct isp_core_rgb_coefft_wb_attr {
+		unsigned short rgb_coefft_wb_r;
+		unsigned short rgb_coefft_wb_g;
+		unsigned short rgb_coefft_wb_b;
+
+}IMPISPCOEFFTWB;
+/**
+ * @fn IMP_ISP_Tuning_Awb_GetRgbCoefft(IMPISPCOEFFTWB *isp_core_rgb_coefft_wb_attr)
+ *
+ * 获取sensor AWB RGB通道偏移参数。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_Awb_GetRgbCoefft(IMPISPCOEFFTWB *isp_core_rgb_coefft_wb_attr);
+/**
+ * @fn IMP_ISP_Tuning_Awb_SetRgbCoefft(IMPISPCOEFFTWB *isp_core_rgb_coefft_wb_attr)
+ *
+ * 设置sensor可以设置AWB RGB通道偏移参数。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ *
+ * 示例：
+ * @code
+ * IMPISPCOEFFTWB isp_core_rgb_coefft_wb_attr;
+ *
+ *isp_core_rgb_coefft_wb_attr.rgb_coefft_wb_r=x;
+ *isp_core_rgb_coefft_wb_attr.rgb_coefft_wb_g=y;
+ *isp_core_rgb_coefft_wb_attr.rgb_coefft_wb_b=z;
+ *IMP_ISP_Tuning_Awb_SetRgbCoefft(&isp_core_rgb_coefft_wb_attr);
+ if(ret){
+ IMP_LOG_ERR(TAG, "IMP_ISP_Tuning_Awb_SetRgbCoefft error !\n");
+ return -1;
+ }
+*/
+int IMP_ISP_Tuning_Awb_SetRgbCoefft(IMPISPCOEFFTWB *isp_core_rgb_coefft_wb_attr);
+
 int IMP_ISP_Tuning_SetMaxAgain(uint32_t gain);
 
 /**
@@ -1386,12 +1016,25 @@ int IMP_ISP_Tuning_SetVideoDrop(void (*cb)(void));
 int IMP_ISP_Tuning_SetHiLightDepress(uint32_t strength);
 
 /**
+ * @fn int IMP_ISP_Tuning_GetHiLightDepress(uint32_t *strength)
+ *
+ * 获取强光抑制的强度。
+ *
+ * @param[out] strength 可以得到设置的强光抑制的强度.0表示关闭此功能。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetHiLightDepress(uint32_t *strength);
+
+/**
  * @fn int IMP_ISP_Tuning_SetTemperStrength(uint32_t ratio)
  *
  * 设置3D降噪强度。
  *
- * @param[in] ratio 强度调节比例.如果设置为90则表示设置为默认值的90%.取值范围为［50-150].
- *
+ * @param[in] ratio 强度调节比例.默认值为128,如果设置大于128则增加强度，小于128降低强度.取值范围为［0-255]. *
  * @retval 0 成功
  * @retval 非0 失败，返回错误码
  *
@@ -1404,7 +1047,7 @@ int IMP_ISP_Tuning_SetTemperStrength(uint32_t ratio);
  *
  * 设置2D降噪强度。
  *
- * @param[in] ratio 强度调节比例.如果设置为90则表示设置为默认值的90%.取值范围为［50-150].
+ * @param[in] ratio 强度调节比例.默认值为128,如果设置大于128则增加强度，小于128降低强度.取值范围为［0-255].
  *
  * @retval 0 成功
  * @retval 非0 失败，返回错误码
@@ -1412,43 +1055,6 @@ int IMP_ISP_Tuning_SetTemperStrength(uint32_t ratio);
  * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
  */
 int IMP_ISP_Tuning_SetSinterStrength(uint32_t ratio);
-
-/**
- * @fn int IMP_ISP_Tuning_SetDPStrength(uint32_t ratio)
- *
- * 设置DPC强度。
- *
- * @param[in] ratio 强度调节比例.如果设置为90则表示设置为默认值的90%.取值范围为［50-150].
- *
- * @retval 0 成功
- * @retval 非0 失败，返回错误码
- *
- * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
- */
-int IMP_ISP_Tuning_SetDPStrength(uint32_t ratio);
-
-/**
- * ISP ANTIFOG 工作模式。
- */
-typedef enum {
-	ANTIFOG_DISABLE,			/**< 关闭 */
-	ANTIFOG_STRONG,				/**< 强 */
-	ANTIFOG_MEDIUM,				/**< 中 */
-	ANTIFOG_WEAK,				/**< 弱 */
-}IMPISPAntiFogAttr;
-
-/**
-* @fn int IMP_ISP_Tuning_SetAntiFogAttr(IMPISPAntiFogAttr attr)
-*
-* 设置ANTIFOG属性。
-* @param[in] attr ANTIFOG属性参数
-*
-* @retval 0 成功
-* @retval 非0 失败，返回错误码
-*
-* @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
-*/
-int IMP_ISP_Tuning_SetAntiFogAttr(IMPISPAntiFogAttr attr);
 
 /**
  * ISP EV 参数。
@@ -1474,6 +1080,801 @@ typedef struct {
 * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
 */
 int IMP_ISP_Tuning_GetEVAttr(IMPISPEVAttr *attr);
+
+/**
+* @fn int IMP_ISP_Tuning_EnableMovestate(void)
+*
+* 当sensor在运动时，设置ISP进入运动态。
+*
+* @retval 0 成功
+* @retval 非0 失败，返回错误码
+*
+* @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+*/
+int IMP_ISP_Tuning_EnableMovestate(void);
+
+/**
+* @fn int IMP_ISP_Tuning_DisableMovestate(void)
+*
+* 当sensor从运动态恢复为静止态，设置ISP不使能运动态。
+*
+* @retval 0 成功
+* @retval 非0 失败，返回错误码
+*
+* @attention 在使用这个函数之前，IMP_ISP_Tuning_EnableMovestate已被调用。
+*/
+int IMP_ISP_Tuning_DisableMovestate(void);
+
+/**
+* 模式选择选项
+*/
+typedef enum {
+	IMPISP_TUNING_MODE_AUTO,    /**< 该模块的操作为自动模式 */
+	IMPISP_TUNING_MODE_MANUAL,    /**< 该模块的操作为手动模式 */
+	IMPISP_TUNING_MODE_RANGE,    /**< 该模块的操作为设置范围模式 */
+	IMPISP_TUNING_MODE_BUTT,    /**< 用于判断参数的有效性，参数大小必须小于这个值 */
+} IMPISPTuningMode;
+
+/**
+* 权重信息
+*/
+typedef struct {
+	unsigned char weight[15][15];    /**< 各区域权重信息 [0 ~ 8]*/
+} IMPISPWeight;
+
+/**
+ * @fn int IMP_ISP_Tuning_SetAeWeight(IMPISPWeight *ae_weight)
+ *
+ * 设置AE统计区域的权重。
+ *
+ * @param[in] ae_weight 各区域权重信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAeWeight(IMPISPWeight *ae_weight);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAeWeight(IMPISPWeight *ae_weight)
+ *
+ * 获取AE统计区域的权重。
+ *
+ * @param[out] ae_weight 各区域权重信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAeWeight(IMPISPWeight *ae_weight);
+
+/**
+ * @fn int IMP_ISP_Tuning_AE_GetROI(IMPISPWeight *roi_weight)
+ *
+ * 获取AE感兴趣区域，用于场景判断。
+ *
+ * @param[out] roi_weight AE感兴趣区域权重。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_AE_GetROI(IMPISPWeight *roi_weight);
+
+/**
+ * @fn int IMP_ISP_Tuning_AE_SetROI(IMPISPWeight *roi_weight)
+ *
+ * 获取AE感兴趣区域，用于场景判断。
+ *
+ * @param[in] roi_weight AE感兴趣区域权重。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_AE_SetROI(IMPISPWeight *roi_weight);
+
+/**
+ * @fn int IMP_ISP_Tuning_SetAwbWeight(IMPISPWeight *awb_weight)
+ *
+ * 设置AWB统计区域的权重。
+ *
+ * @param[in] awb_weight 各区域权重信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAwbWeight(IMPISPWeight *awb_weight);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAwbWeight(IMPISPWeight *awb_weight)
+ *
+ * 获取AWB统计区域的权重。
+ *
+ * @param[out] awb_weight 各区域权重信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAwbWeight(IMPISPWeight *awb_weight);
+
+/**
+* AWB统计值
+*/
+typedef struct {
+	unsigned char zone_r[225];    /**< 15*15块，RGB三个通道在每个块的亮度统计平均值*/
+	unsigned char zone_g[225];    /**< 15*15块，RGB三个通道在每个块的亮度统计平均值*/
+	unsigned char zone_b[225];    /**< 15*15块，RGB三个通道在每个块的亮度统计平均值*/
+} IMPISPAWBZone;
+/**
+ * @fn int IMP_ISP_Tuning_GetAwbZone(IMPISPAWBZONE *awb_zone)
+ *
+ * 获取WB在每个块，不同通道的统计平均值。
+ *
+ * @param[out] awb_zone 白平衡统计信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAwbZone(IMPISPAWBZone *awb_zone);
+
+/**
+* AE统计值参数
+*/
+typedef struct {
+	unsigned char ae_histhresh[4];    /**< AE统计直方图bin边界 [0 ~ 255]*/
+	unsigned short ae_hist[5];    /**< AE统计直方图bin值 [0 ~ 65535]*/
+	unsigned char ae_stat_nodeh;    /**< 水平方向有效统计区域个数 [0 ~ 15]*/
+	unsigned char ae_stat_nodev;    /**< 垂直方向有效统计区域个数 [0 ~ 15]*/
+} IMPISPAEHist;
+
+/**
+ * AE统计值参数
+ */
+typedef struct {
+	unsigned int ae_hist[256];    /**< AE统计直方图256 bin值*/
+} IMPISPAEHistOrigin;
+
+/**
+ * @fn int IMP_ISP_Tuning_SetAeHist(IMPISPAEHist *ae_hist)
+ *
+ * 设置AE统计相关参数。
+ *
+ * @param[in] ae_hist AE统计相关参数。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAeHist(IMPISPAEHist *ae_hist);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAeHist(IMPISPAEHist *ae_hist)
+ *
+ * 获取AE统计值。
+ *
+ * @param[out] ae_hist AE统计值信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAeHist(IMPISPAEHist *ae_hist);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAeHist_Origin(IMPISPAEHistOrigin *ae_hist)
+ *
+ * 获取AE 256 bin统计值。
+ *
+ * @param[out] ae_hist AE统计值信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAeHist_Origin(IMPISPAEHistOrigin *ae_hist);
+
+/**
+* AWB统计值
+*/
+struct isp_core_awb_sta_info{
+	unsigned short r_gain;    /**< AWB加权r/g平均值 [0 ~ 4095]*/
+	unsigned short b_gain;    /**< AWB加权b/g平均值 [0 ~ 4095]*/
+	unsigned int awb_sum;    /**< 用于AWB统计的像素数 [0 ~ 4294967295]*/
+};
+/**
+* AWB统计模式
+*/
+enum isp_core_awb_stats_mode{
+	IMPISP_AWB_STATS_LEGACY_MODE = 0,    /**< 延迟模式 */
+	IMPISP_AWB_STATS_CURRENT_MODE = 1,    /**< 当前模式 */
+	IMPISP_AWB_STATS_MODE_BUTT,
+};
+/**
+* AWB统计值参数
+*/
+typedef struct {
+	struct isp_core_awb_sta_info awb_stat;    /**< AWB统计值 */
+	enum isp_core_awb_stats_mode awb_stats_mode;    /**< AWB统计模式 */
+	unsigned short awb_whitelevel;    /**< AWB统计数值上限 [0 ~ 1023]*/
+	unsigned short awb_blacklevel;    /**< AWB统计数值下限 [0 ~ 1023]*/
+	unsigned short cr_ref_max;    /**< AWB统计白点区域r/g最大值 [0 ~ 4095]*/
+	unsigned short cr_ref_min;    /**< AWB统计白点区域r/g最小值 [0 ~ 4095]*/
+	unsigned short cb_ref_max;    /**< AWB统计白点区域b/g最大值  [0 ~ 4095]*/
+	unsigned short cb_ref_min;    /**< AWB统计白点区域b/g最大值  [0 ~ 4095]*/
+	unsigned char awb_stat_nodeh;    /**< 水平方向有效统计区域个数 [0 ~ 15]*/
+	unsigned char awb_stat_nodev;    /**< 垂直方向有效统计区域个数 [0 ~ 15]*/
+} IMPISPAWBHist;
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAwbHist(IMPISPAWBHist *awb_hist)
+ *
+ * 获取AWB统计值。
+ *
+ * @param[out] awb_hist AWB统计值信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAwbHist(IMPISPAWBHist *awb_hist);
+
+/**
+ * @fn int IMP_ISP_Tuning_SetAwbHist(IMPISPAWBHist *awb_hist)
+ *
+ * 设置AWB统计相关参数。
+ *
+ * @param[in] awb_hist AWB统计相关参数。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAwbHist(IMPISPAWBHist *awb_hist);
+
+/**
+* AF统计值
+*/
+struct isp_core_af_sta_info{
+	unsigned int af_metrics;/**< AF主统计值*/
+	unsigned int af_metrics_alt;/**< AF次统计值*/
+};
+/**
+* AF统计值参数
+*/
+typedef struct {
+	struct isp_core_af_sta_info af_stat;    /**< AF统计值信息 */
+	unsigned char af_enable;    /**< AF功能开关*/
+	unsigned char af_metrics_shift;    /**< AF统计值缩小参数 默认是0，1代表缩小2倍*/
+	unsigned short af_delta;    /**< AF主统计值阈值 [0 ~ 64]*/
+	unsigned short af_theta;    /**< AF主统计值阈值 [0 ~ 64]*/
+	unsigned short af_hilight_th;    /**< AF高亮点统计阈值 [0 ~ 255]*/
+	unsigned short af_alpha_alt;    /**< AF次统计值阈值 [0 ~ 64]*/
+	unsigned char  af_hstart;    /**< AF统计值横向起始点 [0 ~ 15]*/
+	unsigned char  af_vstart;    /**< AF统计值竖向起始点 [0 ~ 15]*/
+	unsigned char  af_stat_nodeh;    /**< 水平方向有效统计区域个数 [0 ~ 15]*/
+	unsigned char  af_stat_nodev;    /**< 垂直方向有效统计区域个数 [0 ~ 15]*/
+} IMPISPAFHist;
+
+/**
+ * @fn IMP_ISP_Tuning_GetAFMetrices(unsigned int *metric);
+ *
+ * 获取AF统计值。
+ *
+ * @param[out] metric AF统计值信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAFMetrices(unsigned int *metric);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAfHist(IMPISPAFHist *af_hist);
+ *
+ * 获取AF统计值。
+ *
+ * @param[out] af_hist AF统计值信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAfHist(IMPISPAFHist *af_hist);
+
+/**
+ * @fn int IMP_ISP_Tuning_SetAfHist(IMPISPAFHist *af_hist)
+ *
+ * 设置AF统计相关参数。
+ *
+ * @param[in] af_hist AF统计相关参数。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAfHist(IMPISPAFHist *af_hist);
+/**
+ * @fn int IMP_ISP_Tuning_SetAfWeight(IMPISPWeight *af_weight)
+ *
+ * 设置AF统计区域的权重。
+ *
+ * @param[in] af_weight 各区域权重信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAfWeight(IMPISPWeight *af_weigh);
+/**
+ * @fn int IMP_ISP_Tuning_GetAfWeight(IMPISPWeight *af_weight)
+ *
+ * 获取AF统计区域的权重。
+ *
+ * @param[out] af_weight 各区域权重信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAfWeight(IMPISPWeight *af_weight);
+
+/**
+ * ISP Wait Frame 参数。
+ */
+typedef struct {
+	uint32_t timeout;		/**< 超时时间，单位ms */
+	uint64_t cnt;			/**< Frame统计 */
+}IMPISPWaitFrameAttr;
+
+/**
+* @fn int IMP_ISP_Tuning_WaitFrame(IMPISPWaitFrameAttr *attr)
+* 等待帧结束
+*
+* @param[out] attr 等待帧结束属性
+*
+* @retval 0 成功
+* @retval 非0 失败，返回错误码
+*
+* @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+*/
+int IMP_ISP_Tuning_WaitFrame(IMPISPWaitFrameAttr *attr);
+
+/**
+ * AE Min
+ */
+typedef struct {
+	unsigned int min_it;  /**< AE最小曝光 */
+	unsigned int min_again;	 /**< AE 最小模拟增益 */
+	unsigned int min_it_short; /**< AE短帧的最小曝光 */
+	unsigned int min_again_short; /**< AE 短帧的最小模拟增益 */
+} IMPISPAEMin;
+
+/**
+ * @fn int IMP_ISP_Tuning_SetAeMin(IMPISPAEMin *ae_min)
+ *
+ * 设置AE最小值参数。
+ *
+ * @param[in] ae_min AE最小值参数。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAeMin(IMPISPAEMin *ae_min);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAeMin(IMPISPAEMin *ae_min)
+ *
+ * 获取AE最小值参数。
+ *
+ * @param[out] ae_min AE最小值信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAeMin(IMPISPAEMin *ae_min);
+
+/**
+ * @fn int IMP_ISP_Tuning_SetAe_IT_MAX(unsigned int it_max)
+ *
+ * 设置AE最大值参数。
+ *
+ * @param[in] it_max AE最大值参数。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetAe_IT_MAX(unsigned int it_max);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAE_IT_MAX(unsigned int *it_max)
+ *
+ * 获取AE最大值参数。
+ *
+ * @param[out] it_max AE最大值信息。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAE_IT_MAX(unsigned int *it_max);
+
+typedef struct {
+	unsigned int zone[15][15];    /**< 各区域信息*/
+} IMPISPZone;
+
+/**
+ * @fn int IMP_ISP_Tuning_GetAeZone(IMPISPZone *ae_zone)
+ *
+ * 获取AE各个zone的Y值。
+ *
+ * @param[out] ae_zone AE各个区域的Y值。
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetAeZone(IMPISPZone *ae_zone);
+
+/**
+ * ISP Module Control
+ */
+typedef union {
+	unsigned int key;
+	struct {
+		unsigned int bitBypassBLC : 1; /* [0]  */
+		unsigned int bitBypassGIB : 1; /* [1]  */
+		unsigned int bitBypassAG : 1; /* [2]  */
+		unsigned int bitBypassWDR : 1; /* [3]  */
+		unsigned int bitBypassDPC : 1; /* [4]  */
+		unsigned int bitBypassRDNS : 1; /* [5]	*/
+		unsigned int bitBypassLSC : 1; /* [6]  */
+		unsigned int bitBypassADR : 1; /* [7]	 */
+		unsigned int bitBypassDMSC : 1; /* [8]	 */
+		unsigned int bitBypassCCM : 1; /* [9]  */
+		unsigned int bitBypassGAMMA : 1; /* [10]  */
+		unsigned int bitBypassDEFOG : 1; /* [11]	 */
+		unsigned int bitBypassCSC : 1; /* [12]	 */
+		unsigned int bitBypassCLM : 1; /* [13]	 */
+		unsigned int bitBypassSP : 1; /* [14]  */
+		unsigned int bitBypassYDNS : 1; /* [15]	 */
+		unsigned int bitBypassBCSH : 1; /* [16]	 */
+		unsigned int bitBypassSDNS : 1; /* [17]	 */
+		unsigned int bitBypassHLDC : 1; /* [18]	 */
+		unsigned int bitRsv : 12; /* [19 ~ 30]	*/
+		unsigned int bitBypassMDNS : 1; /* [31]  */
+	};
+} IMPISPModuleCtl;
+
+/**
+ * @fn int IMP_ISP_Tuning_SetModuleControl(IMPISPModuleCtl *ispmodule)
+ *
+ * 设置ISP各个模块bypass功能
+ *
+ * @param[in] ispmodule ISP各个模块bypass功能.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetModuleControl(IMPISPModuleCtl *ispmodule);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetModuleControl(IMPISPModuleCtl *ispmodule)
+ *
+ * 获取ISP各个模块bypass功能.
+ *
+ * @param[out] ispmodule ISP各个模块bypass功能
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetModuleControl(IMPISPModuleCtl *ispmodule);
+
+/**
+ * ISP Front Crop Attribution
+ */
+typedef struct {
+	bool fcrop_enable;
+	unsigned int fcrop_top;
+	unsigned int fcrop_left;
+	unsigned int fcrop_width;
+	unsigned int fcrop_height;
+} IMPISPFrontCrop;
+
+/**
+ * @fn int IMP_ISP_Tuning_SetFrontCrop(IMPISPFrontCrop *ispfrontcrop)
+ *
+ * 设置ISP前Crop的位置
+ *
+ * @param[in] ispfrontcrop 前Crop参数
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetFrontCrop(IMPISPFrontCrop *ispfrontcrop);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetFrontCrop(IMPISPFrontCrop *ispfrontcrop)
+ *
+ * 获取前Crop参数.
+ *
+ * @param[out] ispfrontcrop 前Crop参数
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetFrontCrop(IMPISPFrontCrop *ispfrontcrop);
+
+/**
+ * @fn int IMP_ISP_WDR_ENABLE(IMPISPTuningOpsMode mode)
+ *
+ * 使能ISP WDR.
+ *
+ * @param[in] mode ISP WDR 模式
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_WDR_ENABLE(IMPISPTuningOpsMode mode);
+
+/**
+ * @fn int IMP_ISP_Tuning_SetDPC_Strength(unsigned int strength)
+ *
+ * 设置DPC强度.
+ *
+ * @param[in] strength 强度调节比例.默认值为128,如果设置大于128则增加强度，小于128降低强度.取值范围为［0-255]
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetDPC_Strength(unsigned int ratio);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetDPC_Strength(unsigned int *strength)
+ *
+ * 获取DPC强度.
+ *
+ * @param[out] strength 强度调节比例.默认值为128,如果设置大于128则增加强度，小于128降低强度.取值范围为［0-255]
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetDPC_Strength(unsigned int *ratio);
+
+/**
+ * @fn int IMP_ISP_Tuning_SetDRC_Strength(unsigned int ratio)
+ *
+ * 设置DRC强度值.
+ *
+ * @param[in] strength 强度调节比例.默认值为128,如果设置大于128则增加强度，小于128降低强度.取值范围为［0-255]
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetDRC_Strength(unsigned int ratio);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetDRC_Strength(unsigned int *ratio)
+ *
+ * 获取DRC强度值.
+ *
+ * @param[out] ratio 强度调节比例.默认值为128,如果设置大于128则增加强度，小于128降低强度.取值范围为［0-255]
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetDRC_Strength(unsigned int *ratio);
+
+/**
+ * HV Flip 模式
+ */
+typedef enum {
+	IMPISP_FLIP_NORMAL_MODE = 0,	/**< 正常模式 */
+	IMPISP_FLIP_H_MODE = 1,	   /**< 镜像模式 */
+	IMPISP_FLIP_V_MODE = 2,		/**< 翻转模式 */
+	IMPISP_FLIP_HV_MODE = 3,	/**< 镜像并翻转模式 */
+	IMPISP_FLIP_MODE_BUTT,
+} IMPISPHVFLIP;
+
+/**
+ * @fn int IMP_ISP_Tuning_SetHVFLIP(IMPISPHVFLIP hvflip)
+ *
+ * 设置HV Flip的模式.
+ *
+ * @param[in] hvflip HV Flip模式.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetHVFLIP(IMPISPHVFLIP hvflip);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetHVFlip(IMPISPHVFLIP *hvflip)
+ *
+ * 获取HV Flip的模式.
+ *
+ * @param[out] hvflip HV Flip模式.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetHVFlip(IMPISPHVFLIP *hvflip);
+
+/**
+ * 填充数据类型
+ */
+typedef enum {
+	IMPISP_MASK_TYPE_RGB = 0, /**< RGB */
+	IMPISP_MASK_TYPE_YUV = 1, /**< YUV */
+} IMPISP_MASK_TYPE;
+
+/**
+ * 填充数据
+ */
+typedef union mask_value {
+	struct {
+		unsigned char Red; /**< R 值 */
+		unsigned char Green; /**< G 值 */
+		unsigned char Blue; /**< B 值 */
+	} mask_rgb; /**< RGB*/
+	struct {
+		unsigned char y_value; /**< Y 值 */
+		unsigned char u_value; /**< U 值 */
+		unsigned char v_value; /**< V 值 */
+	} mask_ayuv; /**< YUV*/
+} IMP_ISP_MASK_VALUE;
+
+/**
+ * 每个通道的填充属性
+ */
+typedef struct isp_mask_block_par {
+	unsigned char mask_en;/**< 填充使能 */
+	unsigned short mask_pos_top;/**< 填充位置y坐标*/
+	unsigned short mask_pos_left;/**< 填充位置x坐标  */
+	unsigned short mask_width;/**< 填充数据宽度 */
+	unsigned short mask_height;/**< 填充数据高度 */
+	IMP_ISP_MASK_VALUE mask_value;/**< 填充数据值 */
+} IMPISP_MASK_BLOCK_PAR;
+
+/**
+ * 填充参数
+ */
+typedef struct {
+	IMPISP_MASK_BLOCK_PAR chn0[4];/**< 通道0填充参数 */
+	IMPISP_MASK_BLOCK_PAR chn1[4];/**< 通道1填充参数 */
+	IMPISP_MASK_BLOCK_PAR chn2[4];/**< 通道3填充参数 */
+	IMPISP_MASK_TYPE mask_type;/**< 填充数据类型 */
+} IMPISPMASKAttr;
+
+/**
+ * @fn int IMP_ISP_Tuning_SetMask(IMPISPMASKAttr *mask)
+ *
+ * 设置填充参数.
+ *
+ * @param[in] mask 填充参数.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_SetMask(IMPISPMASKAttr *mask);
+
+/**
+ * @fn int IMP_ISP_Tuning_GetMask(IMPISPMASKAttr *mask)
+ *
+ * 获取填充参数.
+ *
+ * @param[out] mask 填充参数.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetMask(IMPISPMASKAttr *mask);
+
+/**
+ * Sensor属性参数
+ */
+typedef struct {
+	unsigned int hts;/**< sensor hts */
+	unsigned int vts;/**< sensor vts */
+	unsigned int fps;/**< sensor 帧率 */
+	unsigned int width;/**< sensor输出宽度 */
+	unsigned int height;/**< sensor输出的高度 */
+} IMPISPSENSORAttr;
+/**
+ * @fn int IMP_ISP_Tuning_GetSensorAttr(IMPISPSENSORAttr *attr)
+ *
+ * 获取填充参数.
+ *
+ * @param[out] attr sensor属性参数.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_GetSensorAttr(IMPISPSENSORAttr *attr);
+
+/**
+ * @fn int IMP_ISP_Tuning_EnableDRC(IMPISPTuningOpsMode mode)
+ *
+ * 使能DRC功能.
+ *
+ * @param[out] mode DRC功能使能参数.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_EnableDRC(IMPISPTuningOpsMode mode);
+
+/**
+ * @fn int IMP_ISP_Tuning_EnableDefog(IMPISPTuningOpsMode mode)
+ *
+ * 使能Defog功能.
+ *
+ * @param[out] mode Defog功能使能参数.
+ *
+ * @retval 0 成功
+ * @retval 非0 失败，返回错误码
+ *
+ * @attention 在使用这个函数之前，IMP_ISP_EnableTuning已被调用。
+ */
+int IMP_ISP_Tuning_EnableDefog(IMPISPTuningOpsMode mode);
+
 
 #ifdef __cplusplus
 #if __cplusplus
