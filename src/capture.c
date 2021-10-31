@@ -314,6 +314,23 @@ int initialize_audio()
   return 0;
 }
 
+#define FS_CHN_NUM			4  //MIN 1,MAX 3
+#define IVS_CHN_ID          3
+
+#define CH0_INDEX  0
+#define CH1_INDEX  1
+#define CH2_INDEX  2
+#define CH3_INDEX  3
+#define CHN_ENABLE 1
+#define CHN_DISABLE 0
+struct chn_conf{
+	unsigned int index;//0 for main channel ,1 for second channel
+	unsigned int enable;
+  IMPEncoderProfile payloadType;
+	IMPFSChnAttr fs_chn_attr;
+	IMPCell framesource_chn;
+	IMPCell imp_encoder;
+};
 
 struct chn_conf chn[FS_CHN_NUM] = {
 	{
