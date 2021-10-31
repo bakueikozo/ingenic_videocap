@@ -315,6 +315,115 @@ int initialize_audio()
 }
 
 
+struct chn_conf chn[FS_CHN_NUM] = {
+	{
+		.index = CH0_INDEX,
+		.enable = CHN0_EN,
+    .payloadType = IMP_ENC_PROFILE_HEVC_MAIN,
+		.fs_chn_attr = {
+			.pixFmt = PIX_FMT_NV12,
+			.outFrmRateNum = SENSOR_FRAME_RATE_NUM,
+			.outFrmRateDen = SENSOR_FRAME_RATE_DEN,
+			.nrVBs = 2,
+			.type = FS_PHY_CHANNEL,
+
+			.crop.enable = CROP_EN,
+			.crop.top = 0,
+			.crop.left = 0,
+			.crop.width = SENSOR_WIDTH,
+			.crop.height = SENSOR_HEIGHT,
+
+			.scaler.enable = 0,
+
+			.picWidth = SENSOR_WIDTH,
+			.picHeight = SENSOR_HEIGHT,
+		   },
+		.framesource_chn =	{ DEV_ID_FS, CH0_INDEX, 0},
+		.imp_encoder = { DEV_ID_ENC, CH0_INDEX, 0},
+	},
+	{
+		.index = CH1_INDEX,
+		.enable = CHN1_EN,
+    .payloadType = IMP_ENC_PROFILE_HEVC_MAIN,
+		.fs_chn_attr = {
+			.pixFmt = PIX_FMT_NV12,
+			.outFrmRateNum = SENSOR_FRAME_RATE_NUM,
+			.outFrmRateDen = SENSOR_FRAME_RATE_DEN,
+			.nrVBs = 2,
+			.type = FS_PHY_CHANNEL,
+
+			.crop.enable = 0,
+			.crop.top = 0,
+			.crop.left = 0,
+			.crop.width = SENSOR_WIDTH,
+			.crop.height = SENSOR_HEIGHT,
+
+			.scaler.enable = 1,
+			.scaler.outwidth = SENSOR_WIDTH_THIRD,
+			.scaler.outheight = SENSOR_HEIGHT_THIRD,
+
+			.picWidth = SENSOR_WIDTH_THIRD,
+			.picHeight = SENSOR_HEIGHT_THIRD,
+		   },
+		.framesource_chn =	{ DEV_ID_FS, CH1_INDEX, 0},
+		.imp_encoder = { DEV_ID_ENC, CH1_INDEX, 0},
+	},
+	{
+		.index = CH2_INDEX,
+		.enable = CHN2_EN,
+    .payloadType = IMP_ENC_PROFILE_HEVC_MAIN,
+		.fs_chn_attr = {
+			.pixFmt = PIX_FMT_NV12,
+			.outFrmRateNum = SENSOR_FRAME_RATE_NUM,
+			.outFrmRateDen = SENSOR_FRAME_RATE_DEN,
+			.nrVBs = 2,
+			.type = FS_PHY_CHANNEL,
+
+			.crop.enable = 0,
+			.crop.top = 0,
+			.crop.left = 0,
+			.crop.width = SENSOR_WIDTH,
+			.crop.height = SENSOR_HEIGHT,
+
+			.scaler.enable = 1,
+			.scaler.outwidth = SENSOR_WIDTH_SECOND,
+			.scaler.outheight = SENSOR_HEIGHT_SECOND,
+
+			.picWidth = SENSOR_WIDTH_SECOND,
+			.picHeight = SENSOR_HEIGHT_SECOND,
+		   },
+		.framesource_chn =	{ DEV_ID_FS, CH2_INDEX, 0},
+		.imp_encoder = { DEV_ID_ENC, CH2_INDEX, 0},
+	},
+	{
+		.index = CH3_INDEX,
+		.enable = CHN3_EN,
+    .payloadType = IMP_ENC_PROFILE_HEVC_MAIN,
+		.fs_chn_attr = {
+			.pixFmt = PIX_FMT_NV12,
+			.outFrmRateNum = SENSOR_FRAME_RATE_NUM,
+			.outFrmRateDen = SENSOR_FRAME_RATE_DEN,
+			.nrVBs = 2,
+			.type = FS_EXT_CHANNEL,
+
+			.crop.enable = 0,
+			.crop.top = 0,
+			.crop.left = 0,
+			.crop.width = SENSOR_WIDTH,
+			.crop.height = SENSOR_HEIGHT,
+
+			.scaler.enable = 1,
+			.scaler.outwidth = SENSOR_WIDTH_SECOND,
+			.scaler.outheight = SENSOR_HEIGHT_SECOND,
+
+			.picWidth = SENSOR_WIDTH_SECOND,
+			.picHeight = SENSOR_HEIGHT_SECOND,
+		   },
+		.framesource_chn =	{ DEV_ID_FS, CH3_INDEX, 0},
+		.imp_encoder = { DEV_ID_ENC, CH3_INDEX, 0},
+	},
+};
+
 int create_encoding_group(int group_id)
 {
   // One group only supports one resolution, and different resolutions
@@ -335,8 +444,61 @@ int create_encoding_group(int group_id)
   return 0;
 }
 
+int sample_encoder_init()
+{
+	int i, ret, chnNum = 0;
+	IMPFSChnAttr *imp_chn_attr_tmp;
+	IMPEncoderChnAttr channel_attr;
 
+    for (i = 0; i <  FS_CHN_NUM; i++) {
+        if (chn[i].enable) {
+            imp_chn_attr_tmp = &chn[i].fs_chn_attr;
+            chnNum = chn[i].index;
 
+            memset(&channel_attr, 0, sizeof(IMPEncoderChnAttr));
+
+			float ratio = 1;
+			if (((uint64_t)imp_chn_attr_tmp->picWidth * imp_chn_attr_tmp->picHeight) > (1280 * 720)) {
+				ratio = log10f(((uint64_t)imp_chn_attr_tmp->picWidth * imp_chn_attr_tmp->picHeight) / (1280 * 720.0)) + 1;
+			} else {
+				ratio = 1.0 / (log10f((1280 * 720.0) / ((uint64_t)imp_chn_attr_tmp->picWidth * imp_chn_attr_tmp->picHeight)) + 1);
+			}
+			ratio = ratio > 0.1 ? ratio : 0.1;
+			unsigned int uTargetBitRate = BITRATE_720P_Kbs * ratio;
+
+            ret = IMP_Encoder_SetDefaultParam(&channel_attr, chn[i].payloadType, S_RC_METHOD,
+                    imp_chn_attr_tmp->picWidth, imp_chn_attr_tmp->picHeight,
+                    imp_chn_attr_tmp->outFrmRateNum, imp_chn_attr_tmp->outFrmRateDen,
+                    imp_chn_attr_tmp->outFrmRateNum * 2 / imp_chn_attr_tmp->outFrmRateDen, 2,
+                    (S_RC_METHOD == IMP_ENC_RC_MODE_FIXQP) ? 35 : -1,
+                    uTargetBitRate);
+            if (ret < 0) {
+                IMP_LOG_ERR(TAG, "IMP_Encoder_SetDefaultParam(%d) error !\n", chnNum);
+                return -1;
+            }
+
+            ret = IMP_Encoder_CreateChn(chnNum, &channel_attr);
+            if (ret < 0) {
+                IMP_LOG_ERR(TAG, "IMP_Encoder_CreateChn(%d) error !\n", chnNum);
+                return -1;
+            }
+
+			ret = IMP_Encoder_RegisterChn(chn[i].index, chnNum);
+			if (ret < 0) {
+				IMP_LOG_ERR(TAG, "IMP_Encoder_RegisterChn(%d, %d) error: %d\n", chn[i].index, chnNum, ret);
+				return -1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int setup_encoding_engine(FrameSource* frame_source, EncoderSetting *encoder_setting)
+{
+  sample_encoder_init();
+}
+/*
 int setup_encoding_engine(FrameSource* frame_source, EncoderSetting *encoder_setting)
 {
   int i, ret;
@@ -420,6 +582,9 @@ int setup_encoding_engine(FrameSource* frame_source, EncoderSetting *encoder_set
   return 0;
 
 }
+*/
+
+
 
 void print_channel_attributes(IMPFSChnAttr *attr)
 {
