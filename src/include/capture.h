@@ -1,4 +1,4 @@
-ifndef CAPTURE_H /* include guard */
+#ifndef CAPTURE_H /* include guard */
 #define CAPTURE_H
 
 
